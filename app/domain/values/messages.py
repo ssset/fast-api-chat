@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from domain.values.base import BaseValueObject
-from domain.exeptions.messages import TitleTooLongException, EmptyTextError
+from domain.exceptions.messages import TitleTooLongException, EmptyTextError
 
 @dataclass(frozen=True)
 class Text(BaseValueObject):

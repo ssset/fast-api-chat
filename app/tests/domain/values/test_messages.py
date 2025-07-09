@@ -3,7 +3,7 @@ import pytest
 
 from domain.values.messages import Text, Title
 from domain.entities.messages import Message, Chat
-from domain.exeptions.messages import TitleTooLongException
+from domain.exceptions.messages import TitleTooLongException
 from domain.events.messages import NewMessageReceivedEvent
 
 
