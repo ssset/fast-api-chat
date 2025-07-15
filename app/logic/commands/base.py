@@ -15,5 +15,5 @@ CR = TypeVar(name='CR', bound=Any)
 @dataclass(frozen=True)
 class CommandHandler(ABC, Generic[CT, CR]):
     @abstractmethod
-    async def handler(self, command: CT) -> CR:
+    async def handle(self, command: CT) -> CR:
         ...
