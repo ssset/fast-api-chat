@@ -3,7 +3,7 @@ from fastapi.exceptions import HTTPException
 from fastapi.routing import APIRouter
 
 
-from application.api.messages.schemas import CreateChatResponseSchema
+from application.api.messages.schemas import CreateChatRequestSchema, CreateChatResponseSchema
 from application.api.schemas import ErrorSchema
 from domain.exceptions.base import ApplicationException
 from logic.commands.messages import CreateChatCommand
@@ -27,7 +27,7 @@ router = APIRouter(
             }
         )
 
-async def create_chat_handler(schema: CreateChatResponseSchema, container=Depends(init_container)):
+async def create_chat_handler(schema: CreateChatRequestSchema, container=Depends(init_container)):
     """Создать новый чат."""
     mediator: Mediator = container.resolve(Mediator)
 

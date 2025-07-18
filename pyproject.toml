@@ -7,7 +7,7 @@ readme = 'README.md'
 
 [tool.poetry.dependencies]
 python = '^3.11'
-fastapi = '^0.110.0'
+fastapi = {extras = ["httpx"], version = "^0.116.1"}
 motor = '^3.3.2'
 uvicorn = {extras = ['all'], version = "^0.28.0"}
 ipython = "^9.4.0"
@@ -15,6 +15,7 @@ pytest = "^8.4.1"
 faker = "^37.4.0"
 pytest-asyncio = "^1.0.0"
 punq = "^0.7.0"
+httpx = "^0.28.1"
 
 
 [tool.poetry.group.dev.dependencies]

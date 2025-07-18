@@ -4,7 +4,7 @@ from domain.exceptions.messages import TitleTooLongException, EmptyTextError
 
 @dataclass(frozen=True)
 class Text(BaseValueObject):
-    value = str
+    value: str
 
     def validate(self):
         if not self.value:
