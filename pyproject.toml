@@ -16,6 +16,7 @@ faker = "^37.4.0"
 pytest-asyncio = "^1.0.0"
 punq = "^0.7.0"
 httpx = "^0.28.1"
+pydantic-settings = "^2.10.1"
 
 
 [tool.poetry.group.dev.dependencies]

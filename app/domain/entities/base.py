@@ -1,5 +1,6 @@
 from abc import ABC
 from copy import copy
+from datetime import datetime
 from uuid import uuid4
 from dataclasses import dataclass, field
 from domain.events.base import BaseEvent
@@ -13,6 +14,10 @@ class BaseEntity(ABC):
     )
     _events: list[BaseEvent] = field(
         default_factory=list,
+        kw_only=True
+    )
+    created_at: datetime = field(
+        default_factory=datetime.now,
         kw_only=True
     )
 
