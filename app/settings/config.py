@@ -6,6 +6,7 @@ class Config(BaseSettings):
     mongodb_connection_url: str = Field(alias='MONGO_DB_CONNECTION_URL')
     mongodb_chat_database: str = Field(default='chat', alias='MONGODB_CHAT_DATABASE')
     mongodb_chat_collection: str = Field(default='chat', alias='MONGODB_CHAT_COLLECTION')
+    mongo_db_messages_collection: str = Field(default='messages', alias='MONGO_DB_MESSAGES_COLLECTION')
 
     model_config = SettingsConfigDict(
         env_file='.env',

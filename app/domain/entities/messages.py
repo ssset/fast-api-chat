@@ -8,6 +8,7 @@ from domain.events.messages import NewMessageReceivedEvent, NewChatCreated
 
 @dataclass(eq=False)
 class Message(BaseEntity):
+    chat_oid: str
     text: Text
 
 
