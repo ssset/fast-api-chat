@@ -1,10 +1,15 @@
 from dataclasses import dataclass, field
 from abc import ABC
+from datetime import datetime
+from typing import ClassVar
 from uuid import uuid4, UUID
 
 
 @dataclass
 class BaseEvent(ABC):
+    event_title: ClassVar[str]
+    
     event_id: UUID = field(
         default_factory=uuid4,
         kw_only=True)
+    created_at: datetime = field(default_factory=datetime.now, kw_only=True)

@@ -6,11 +6,15 @@ from domain.events.base import BaseEvent
 from logic.commands.base import CT, CR, BaseCommand, CommandHandler
 from logic.events.base import EventHandler, ER, ET
 from logic.exceptions.mediator import EventHandlersNotRegisteredException, CommandHandlersNotRegisteredException
+from logic.mediator.command import CommandMediator
+from infra.message_brokers.converters import convert_event_to_broker_message
+from logic.mediator.event import EventMediator
+from logic.mediator.query import QueryMediator
 from logic.queries.base import QR, QT, BaseQuery, BaseQueryHandler
 
 
 @dataclass(eq=False)
-class Mediator:
+class Mediator(EventMediator,CommandMediator, QueryMediator):
     events_map: dict[ET, EventHandler] = field(
         default_factory=lambda: defaultdict(list),
         kw_only=True
@@ -34,17 +38,17 @@ class Mediator:
         self.queries_map[query] = query_handler
 
     async def publish(self, events: Iterable[BaseEvent]) -> Iterable[ER]:
-        event_type = events.__class__
-        handlers = self.event_map.get(event_type)
-
-        if not handlers:
-            raise EventHandlersNotRegisteredException(event_type)
-        
         result = []
 
         for event in events:
-            result.extend([await handler.handle(events) for handler in handlers])
-        
+            handlers: Iterable[EventHandler] = self.events_map[event.__class__]
+            
+            for handler in handlers:
+                result.append(await handler.handle(event=event))
+
+            result.extend([await handler.handle(event) for handler in handlers])
+    
+
         return result
 
     async def handle_command(self, command: BaseCommand) -> Iterable[CR]:
