@@ -9,6 +9,7 @@ class Config(BaseSettings):
     mongo_db_messages_collection: str = Field(default='messages', alias='MONGO_DB_MESSAGES_COLLECTION')
     new_chats_event_topic: str = Field(default='new_chats_topic')
     kafka_url: str = Field(alias='KAFKA_URL')
+    new_message_received_topic: str = Field(default='new_message_topic')
 
     model_config = SettingsConfigDict(
         env_file='.env',
