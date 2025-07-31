@@ -1,9 +1,10 @@
-from functools import lru_cache
+from functools import lru_cache, partial
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from punq import Container, Scope
 
 from motor.motor_asyncio import AsyncIOMotorClient
 
+from application.api.common.websockets.managers import BaseConectionManager, ConectionManager
 from domain.events.messages import NewChatCreatedEvent, NewMessageReceivedEvent
 from infra.message_brokers.base import BaseMessageBroker
 from infra.message_brokers.kafka import KafkaMessageBroker
@@ -63,7 +64,8 @@ def _init_container() -> Container:
 
     def create_message_broker() -> BaseMessageBroker:
         return KafkaMessageBroker(
-            producer=AIOKafkaProducer(bootstrap_servers=config.kafka_url)
+            producer=AIOKafkaProducer(bootstrap_servers=config.kafka_url),
+            consumer=AIOKafkaConsumer(bootstrap_servers=config.kafka_url, group_id='chat')
         )
 
     # Message Broker
@@ -127,5 +129,6 @@ def _init_container() -> Container:
 
     container.register(Mediator, factory=init_mediator)
     container.register(EventMediator, factory=init_mediator)
+    container.register(BaseConectionManager, instance=ConectionManager(), scope=Scope.singleton)
 
     return container

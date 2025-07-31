@@ -33,7 +33,7 @@ message-logs:
 
 .PHONY: app-down
 app-down:
-	${DC} -f ${APP_FILE} down
+	${DC} -f ${APP_FILE} -f ${MESSAGE_FILE} down
 
 .PHONY: message-down
 message-down:
