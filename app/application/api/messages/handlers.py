@@ -32,7 +32,11 @@ router = APIRouter(
             }
         )
 
-async def create_chat_handler(schema: CreateChatRequestSchema, container: Container = Depends(init_container)) -> CreateChatResponseSchema:
+
+async def create_chat_handler(
+    schema: CreateChatRequestSchema,
+    container: Container = Depends(init_container)
+    ) -> CreateChatResponseSchema:
     """Создать новый чат."""
     mediator: Mediator = container.resolve(Mediator)
 
