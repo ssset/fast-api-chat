@@ -4,7 +4,6 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field
 
 from domain.events.base import BaseEvent
-from infra.message_brokers.base import BaseMessageBroker
 from logic.events.base import EventHandler, ER, ET
 
 

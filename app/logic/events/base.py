@@ -11,7 +11,7 @@ ER = TypeVar('ER', bound=Any)
 
 
 @dataclass
-class IntegrationEvent(ABC, BaseEvent):
+class IntegrationEvent(BaseEvent, ABC):
     ...    
 
 

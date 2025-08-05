@@ -1,4 +1,4 @@
-from functools import lru_cache, partial
+from functools import lru_cache
 from uuid import uuid4
 from aiojobs import Scheduler
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
@@ -27,6 +27,8 @@ from logic.events.messages import (
 from logic.mediator.base import Mediator
 from logic.mediator.event import EventMediator
 from logic.queries.messages import (
+    GetAllChatsQuery,
+    GetAllChatsQueryHandler,
     GetChatDetailQuery,
     GetChatDetailQueryHandler,
     GetMessagesQuery,
@@ -77,7 +79,7 @@ def _init_container() -> Container:
     # Query handlers
     container.register(GetChatDetailQueryHandler)
     container.register(GetMessagesQueryHandler)
-
+    container.register(GetAllChatsQueryHandler)
 
     def create_message_broker() -> BaseMessageBroker:
         return KafkaMessageBroker(
@@ -156,11 +158,16 @@ def _init_container() -> Container:
             container.resolve(GetMessagesQueryHandler),
         )
 
+        mediator.register_query(
+            GetAllChatsQuery,
+            container.resolve(GetAllChatsQueryHandler)
+        )
+
         return mediator 
 
     container.register(Mediator, factory=init_mediator)
     container.register(EventMediator, factory=init_mediator)
 
-    container.register(Scheduler, factory=lambda _: Scheduler, scope=Scope.singleton)
+    container.register(Scheduler, factory=lambda: Scheduler(), scope=Scope.singleton)
 
     return container

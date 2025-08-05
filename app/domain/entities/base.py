@@ -3,6 +3,7 @@ from copy import copy
 from datetime import datetime
 from uuid import uuid4
 from dataclasses import dataclass, field
+from domain.entities.messages import Chat
 from domain.events.base import BaseEvent
 
 

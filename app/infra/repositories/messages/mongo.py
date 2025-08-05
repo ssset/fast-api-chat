@@ -5,7 +5,7 @@ from typing import Iterable
 from motor.core import AgnosticClient
 
 from domain.entities.messages import Chat, Message
-from infra.repositories.filters.messages import GetMessagesFilter
+from infra.repositories.filters.messages import GetAllChatsFilters, GetMessagesFilter
 from infra.repositories.messages.base import BaseChatsRepository, BaseMessagesRepository
 from infra.repositories.messages.converters import convert_chat_document_to_entity, convert_chat_entity_to_document, convert_message_document_to_entity, convert_message_entity_to_document
 
@@ -36,7 +36,19 @@ class MongoDBChatsRepository(BaseChatsRepository, BaseMongoDBRepository):
     
     async def add_chat(self, chat: Chat) -> None:
         await self._collection.insert_one(convert_chat_entity_to_document(chat))
+    
+    async def get_all_chats(self, filters: GetAllChatsFilters) -> Iterable[Chat]:
+        cursor = self._collection.find().skip(filters.offset).limit(filters.limit)
 
+        chats = [
+            convert_chat_document_to_entity(chat_document=chat_document)
+            async for chat_document in cursor
+        ]
+
+        count = await self._collection.count_documents({})
+       
+        return chats, count 
+    
 
 @dataclass
 class MongoDBMessagesRepository(BaseMessagesRepository, BaseMongoDBRepository):
@@ -56,3 +68,5 @@ class MongoDBMessagesRepository(BaseMessagesRepository, BaseMongoDBRepository):
             ]
         count = await self._collection.count_documents(filter=find)
         return messages, count
+    
+    

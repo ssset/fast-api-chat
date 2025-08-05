@@ -1,5 +1,5 @@
-from dataclasses import dataclass, field
-from typing import AsyncGenerator, AsyncIterator
+from dataclasses import dataclass
+from typing import AsyncIterator
 
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 import orjson

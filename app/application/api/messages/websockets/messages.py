@@ -2,11 +2,10 @@ from punq import Container
 
 from fastapi import Depends
 from fastapi.websockets import WebSocket
-from fastapi import Depends, WebSocketDisconnect
+from fastapi import WebSocketDisconnect
 from fastapi.routing import APIRouter
 from infra.websockets.managers import BaseConectionManager
 
-from infra.websockets.managers import BaseConectionManager
 from logic.init import init_container
 
 router = APIRouter(tags=['chats'])

@@ -1,4 +1,3 @@
-import asyncio
 from contextlib import asynccontextmanager
 from aiojobs import Scheduler
 from punq import Container

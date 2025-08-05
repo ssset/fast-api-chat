@@ -13,7 +13,7 @@ class TitleTooLongException(ApplicationException):
 
 @dataclass(eq=False)
 class EmptyTextError(ApplicationException):
-\
+    
     @property
     def message(self):
-        return f'Текст не может быть пустым'
+        return 'Текст не может быть пустым'

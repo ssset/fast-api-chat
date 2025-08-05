@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 from typing import ClassVar
-
-from domain.events.base import BaseEvent
+    
 from domain.events.messages import NewChatCreatedEvent, NewMessageReceivedEvent
-from infra.message_brokers.converters import convert_event_to_broker_message, convert_event_to_jso
+from infra.message_brokers.converters import convert_event_to_broker_message
 from logic.events.base import EventHandler, IntegrationEvent
 
 

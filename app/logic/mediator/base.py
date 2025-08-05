@@ -5,9 +5,8 @@ from dataclasses import dataclass, field
 from domain.events.base import BaseEvent
 from logic.commands.base import CT, CR, BaseCommand, CommandHandler
 from logic.events.base import EventHandler, ER, ET
-from logic.exceptions.mediator import EventHandlersNotRegisteredException, CommandHandlersNotRegisteredException
+from logic.exceptions.mediator import CommandHandlersNotRegisteredException
 from logic.mediator.command import CommandMediator
-from infra.message_brokers.converters import convert_event_to_broker_message
 from logic.mediator.event import EventMediator
 from logic.mediator.query import QueryMediator
 from logic.queries.base import QR, QT, BaseQuery, BaseQueryHandler
