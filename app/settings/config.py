@@ -13,6 +13,8 @@ class Config(BaseSettings):
     new_message_received_topic: str = Field(default='new-messages')
     new_chats_event_topic: str = Field(default='new_chats_topic')
     
+    chat_deleted_topic: str = Field(default='chat_deleted_topic')
+
     model_config = SettingsConfigDict(
         env_file='.env',
         extra='ignore'

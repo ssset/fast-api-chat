@@ -3,7 +3,6 @@ from copy import copy
 from datetime import datetime
 from uuid import uuid4
 from dataclasses import dataclass, field
-from domain.entities.messages import Chat
 from domain.events.base import BaseEvent
 
 
@@ -25,7 +24,7 @@ class BaseEntity(ABC):
     def __hash__(self) -> int:
         return hash(self.oid)
 
-    def __eq__(self, __value:'Chat') -> bool:
+    def __eq__(self, __value:'BaseEntity') -> bool:
         return self.oid == __value.oid
 
     def pull_events(self) -> list[BaseEvent]:
