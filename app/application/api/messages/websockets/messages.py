@@ -6,7 +6,10 @@ from fastapi import WebSocketDisconnect
 from fastapi.routing import APIRouter
 from infra.websockets.managers import BaseConectionManager
 
+from logic.exceptions.messages import ChatNotFoundException
 from logic.init import init_container
+from logic.mediator.base import Mediator
+from logic.queries.messages import GetChatDetailQuery
 
 router = APIRouter(tags=['chats'])
 
@@ -18,6 +21,14 @@ async def websocket_endpoint(
     container: Container = Depends(init_container)
     ):
     connection_manager: BaseConectionManager = container.resolve(BaseConectionManager)
+    mediator: Mediator = container.resolve(Mediator)
+
+    try:
+        await mediator.handle_query(GetChatDetailQuery)
+    except ChatNotFoundException as error:
+        await websocket.accept()
+        await websocket.send_json({'error': error.message})
+        websocket.close()
     await connection_manager.accept_connection(websocket=websocket, key=str(chat_oid))
 
     await websocket.send_text("You are now connected!")
