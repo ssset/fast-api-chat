@@ -7,13 +7,15 @@ from punq import Container, Scope
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from infra.websockets.managers import BaseConectionManager, ConectionManager
-from domain.events.messages import ChatDeletedEvent, NewChatCreatedEvent, NewMessageReceivedEvent
-from logic.events.messages import ChatDeletedEventHandler, NewMessageReceivedFromBrokerEvent
+from domain.events.messages import ChatDeletedEvent, ListenerAddedEvent, NewChatCreatedEvent, NewMessageReceivedEvent
+from logic.events.messages import ChatDeletedEventHandler, ListenerAddedEventHandler, NewMessageReceivedFromBrokerEvent
 from infra.message_brokers.base import BaseMessageBroker
 from infra.message_brokers.kafka import KafkaMessageBroker
 from infra.repositories.messages.base import BaseChatsRepository, BaseMessagesRepository
 from infra.repositories.messages.mongo import MongoDBChatsRepository, MongoDBMessagesRepository
 from logic.commands.messages import (
+    AddTelegramListenerCommandHandler,
+    AddTelegramListenerCommand,
     CreateChatCommand,
     CreateChatCommandHandler,
     CreateMessageCommand,
@@ -101,6 +103,7 @@ def _init_container() -> Container:
     def init_mediator() -> Mediator:
         mediator = Mediator()
 
+        #commands handlers
         create_chat_handler = CreateChatCommandHandler(
             _mediator = mediator,
             chats_repository=container.resolve(BaseChatsRepository)
@@ -112,6 +115,11 @@ def _init_container() -> Container:
         )
 
         delete_chat_handler = DeleteChatCommandHandler(
+            _mediator = mediator,
+            chats_repository=container.resolve(BaseChatsRepository)
+        )
+
+        add_telegram_listener_handler = AddTelegramListenerCommandHandler(
             _mediator = mediator,
             chats_repository=container.resolve(BaseChatsRepository)
         )
@@ -140,7 +148,11 @@ def _init_container() -> Container:
             broker_topic=config.chat_deleted_topic,
             connection_manager=container.resolve(BaseConectionManager)
         )
-
+        listener_added_event_handler = ListenerAddedEventHandler(
+            message_broker=container.resolve(BaseMessageBroker),
+            broker_topic=config.listener_added_topic,
+            connection_manager=container.resolve(BaseConectionManager)
+        )
         #events
         mediator.register_event(
             NewChatCreatedEvent,
@@ -159,6 +171,11 @@ def _init_container() -> Container:
             [chat_deleted_event_handler]
         )
 
+        mediator.register_event(
+            ListenerAddedEvent,
+            [listener_added_event_handler]
+        )
+
         #commands
         mediator.register_commands(
             CreateChatCommand,
@@ -174,6 +191,12 @@ def _init_container() -> Container:
 
         )
         
+        mediator.register_commands(
+            AddTelegramListenerCommand,
+            [add_telegram_listener_handler]
+        )
+
+        #queries
         mediator.register_query(
             GetChatDetailQuery,
             container.resolve(GetChatDetailQueryHandler))
