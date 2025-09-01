@@ -24,15 +24,12 @@ async def websocket_endpoint(
     mediator: Mediator = container.resolve(Mediator)
 
     try:
-        await mediator.handle_query(GetChatDetailQuery)
+        await mediator.handle_query(GetChatDetailQuery(chat_oid=chat_oid))
     except ChatNotFoundException as error:
         await websocket.accept()
         await websocket.send_json({'error': error.message})
         websocket.close()
     await connection_manager.accept_connection(websocket=websocket, key=str(chat_oid))
-
-    await websocket.send_text("You are now connected!")
-
 
     try:
         while True:

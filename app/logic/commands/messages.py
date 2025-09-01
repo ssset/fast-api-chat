@@ -34,7 +34,7 @@ class CreateChatCommandHandler(CommandHandler[CreateChatCommand, Chat]):
 class CreateMessageCommand(BaseCommand):
     text: str
     chat_oid: str
-
+    source: str
 
 @dataclass(frozen=True)
 class CreateMessageCommandHandler(CommandHandler[CreateMessageCommand, Chat]):
@@ -48,7 +48,7 @@ class CreateMessageCommandHandler(CommandHandler[CreateMessageCommand, Chat]):
             raise ChatNotFoundException(chat_oid=command.chat_oid)
         
         message = Message(text=Text(value=command.text), chat_oid=command.chat_oid)
-        chat.add_message(message)
+        chat.add_message(message, source=command.source)
         await self.messages_repository.add_message(message=message)
         await self._mediator.publish(chat.pull_events())
 

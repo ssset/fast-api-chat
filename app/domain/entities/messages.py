@@ -36,12 +36,13 @@ class Chat(BaseEntity):
 
         return new_chat
 
-    def add_message(self, message: Message):
+    def add_message(self, message: Message, source: str='web'):
         self.messages.add(message)
         self.register_event(NewMessageReceivedEvent(
             message_text=message.text.as_generic_type(),
             chat_oid=self.oid,
-            message_oid=message.oid
+            message_oid=message.oid,
+            source=source
         ))
     
     def delete(self):
@@ -53,4 +54,4 @@ class Chat(BaseEntity):
             raise ListenerAlreadyExistsException(listener_oid=listener.oid)
         
         self.listeners.add(listener)
-        self.register_event(ListenerAddedEvent(listener_oid=listener.oid))
+        self.register_event(ListenerAddedEvent(listener_oid=listener.oid, chat_oid=self.oid))

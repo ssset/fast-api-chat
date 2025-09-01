@@ -23,3 +23,4 @@ class Title(BaseValueObject[str]):
 
     def as_generic_type(self):
         return str(self.value)
+        

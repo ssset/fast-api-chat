@@ -12,7 +12,8 @@ class NewChatCreatedEventHandler(EventHandler[NewChatCreatedEvent, None]):
         await self.message_broker.send_message(
             topic=self.broker_topic,
             value=convert_event_to_broker_message(event=event),
-            key=str(event.event_id).encode()
+            key=str(event.event_id).encode(),
+            headers=[("source", b"web")]
         )
 
 
@@ -22,9 +23,9 @@ class NewMessageReceivedEventHandler(EventHandler[NewMessageReceivedEvent, None]
         await self.message_broker.send_message(
             topic=self.broker_topic,
             value=convert_event_to_broker_message(event=event),
-            key=event.chat_oid.encode()
+            key=event.chat_oid.encode(),
+            headers =[('source', event.source.encode())]
         )
-
 
 
 @dataclass
@@ -41,7 +42,8 @@ class NewMessageReceivedFromBrokerEventHandler(EventHandler[NewMessageReceivedFr
     async def handle(self, event: NewMessageReceivedFromBrokerEvent) -> None:
         await self.connection_manager.send_all(
             key=event.chat_oid,
-            bytes_=convert_event_to_broker_message(event=event)
+            bytes_= convert_event_to_broker_message(event=event),
+
         )
 
 
@@ -51,7 +53,8 @@ class ChatDeletedEventHandler(EventHandler[ChatDeletedEvent, None]):
         await self.message_broker.send_message(
             topic=self.broker_topic,
             value=convert_event_to_broker_message(event=event),
-            key=event.chat_oid.encode()
+            key=event.chat_oid.encode(),
+            headers=[("source", b"web")]
         )
 
         await self.connection_manager.disconnect_all(event.chat_oid)
@@ -63,5 +66,6 @@ class ListenerAddedEventHandler(EventHandler[ListenerAddedEvent, None]):
         await self.message_broker.send_message(
             topic=self.broker_topic,
             value=convert_event_to_broker_message(event=event),
-            key=event.chat_oid.encode()
+            key=event.chat_oid.encode(),
+            headers=[("source", b"web")]
         )

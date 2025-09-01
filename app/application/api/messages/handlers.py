@@ -6,13 +6,13 @@ from fastapi.routing import APIRouter
 
 
 from application.api.messages.filters import GetAllChatsFilters, GetMessagesFilters
-from application.api.messages.schemas import AddTelegramListenerResponseSchema, AddTelegramListenerSchema, ChatDetailSchema, CreateChatRequestSchema, CreateChatResponseSchema, CreateMessageResponseSchema, CreateMessageSchema, GetAllChatsQueryResponseSchema, GetMessagesQueryResponseSchema, MessageDetailSchema
+from application.api.messages.schemas import AddTelegramListenerResponseSchema, AddTelegramListenerSchema, ChatDetailSchema, ChatListenerListItemSchema, CreateChatRequestSchema, CreateChatResponseSchema, CreateMessageResponseSchema, CreateMessageSchema, GetAllChatsQueryResponseSchema, GetMessagesQueryResponseSchema, MessageDetailSchema
 from application.api.schemas import ErrorSchema
 from domain.exceptions.base import ApplicationException
 from logic.commands.messages import AddTelegramListenerCommand, CreateChatCommand, CreateMessageCommand, DeleteChatCommand
 from logic.init import init_container
 from logic.mediator.base import Mediator
-from logic.queries.messages import GetAllChatsQuery, GetChatDetailQuery, GetMessagesQuery
+from logic.queries.messages import GetAllChatsQuery, GetChatDetailQuery, GetChatsListenersQuery, GetMessagesQuery
 
 
 router = APIRouter(
@@ -30,11 +30,9 @@ router = APIRouter(
                 status.HTTP_400_BAD_REQUEST: {'model': ErrorSchema},
             }
         )
-
-
 async def create_chat_handler(
     schema: CreateChatRequestSchema,
-    container: Container = Depends(init_container)
+    container: Container = Depends(init_container),
     ) -> CreateChatResponseSchema:
     """Создать новый чат."""
     mediator: Mediator = container.resolve(Mediator)
@@ -48,7 +46,7 @@ async def create_chat_handler(
 
 
 @router.post(
-    '/{chat_oid}/messages',
+    '/{chat_oid}/messages/',
     status_code=status.HTTP_201_CREATED,
     description='Ручка на добавление нового сообщения в чат с переданным ObjectID',
     responses={
@@ -65,7 +63,7 @@ async def create_message_handler(
     mediator: Mediator = container.resolve(Mediator)
 
     try:
-        message, *_ = await mediator.handle_command(CreateMessageCommand(text=schema.text, chat_oid=chat_oid))
+        message, *_ = await mediator.handle_command(CreateMessageCommand(text=schema.text, chat_oid=chat_oid, source=schema.source))
     except ApplicationException as exception:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})
 
@@ -95,7 +93,6 @@ async def get_chat_with_messages_handler(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})
     
     return ChatDetailSchema.from_entity(chat)
-
 
 
 @router.get(
@@ -199,3 +196,28 @@ async def add_telegram_listener_handler(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})
     
     return AddTelegramListenerResponseSchema.from_entity(listener)
+
+
+@router.get(
+    '/{chat_oid}/listeners/',
+    status_code=status.HTTP_200_OK,
+    description='Получить всех слушателей в в конкретном чате',
+    responses= {
+        status.HTTP_200_OK: {'model': list[ChatListenerListItemSchema]},
+        status.HTTP_400_BAD_REQUEST: {'model': ErrorSchema}
+    },
+    operation_id='GetChatListeners'
+)
+async def get_chat_listeners_handler(
+    chat_oid: str,
+    container: Container = Depends(init_container)
+) -> list[ChatListenerListItemSchema]:  
+    mediator: Mediator = container.resolve(Mediator)
+
+    try:
+        chat_listeners = await mediator.handle_query(GetChatsListenersQuery(chat_oid=chat_oid))
+    
+    except ApplicationException as exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={'error': exception.message})
+    
+    return [ChatListenerListItemSchema.from_entity(chat_listener=chat_listener) for chat_listener in chat_listeners]

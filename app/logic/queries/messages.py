@@ -1,11 +1,12 @@
 from dataclasses import dataclass
 from typing import Iterable
 
-from domain.entities.messages import Chat, Message
+from domain.entities.messages import Chat, ChatListener, Message
 from infra.repositories.filters.messages import GetAllChatsFilters, GetMessagesFilter
 from infra.repositories.messages.base import BaseChatsRepository, BaseMessagesRepository
 from logic.exceptions.messages import ChatNotFoundException
 from logic.queries.base import BaseQuery, BaseQueryHandler
+
 
 @dataclass(frozen=True)
 class GetChatDetailQuery(BaseQuery):
@@ -16,6 +17,16 @@ class GetChatDetailQuery(BaseQuery):
 class GetMessagesQuery(BaseQuery):
     chat_oid: str
     filters: GetMessagesFilter
+
+
+@dataclass(frozen=True)
+class GetChatsListenersQuery(BaseQuery):
+    chat_oid: str
+
+
+@dataclass(frozen=True)
+class GetAllChatsQuery(BaseQuery):
+    filters: GetAllChatsFilters
 
 
 @dataclass(frozen=True)
@@ -33,10 +44,6 @@ class GetChatDetailQueryHandler(BaseQueryHandler):
 
 
 @dataclass(frozen=True)
-class GetAllChatsQuery(BaseQuery):
-    filters: GetAllChatsFilters
-
-@dataclass(frozen=True)
 class GetMessagesQueryHandler(BaseQueryHandler):
     messages_repository: BaseMessagesRepository
 
@@ -50,4 +57,17 @@ class GetAllChatsQueryHandler(BaseQueryHandler[GetAllChatsQuery, Iterable[Chat]]
 
     async def handle(self, query: GetAllChatsQuery) -> Iterable[Chat]:
         return await self.chats_repository.get_all_chats(filters=query.filters)
-    
+
+
+@dataclass(frozen=True)
+class GetAllChatsListenersQueryHandler(BaseQueryHandler[GetChatsListenersQuery, Iterable[ChatListener]]):
+    chats_repository: BaseChatsRepository
+
+    async def handle(self, query: GetChatsListenersQuery) -> ChatListener:
+        #TODO: Убрать два запроса
+        chat = await self.chats_repository.get_chat_by_oid(oid=query.chat_oid)
+        
+        if not chat:
+            raise ChatNotFoundException(chat_oid=query.chat_oid)
+        
+        return await self.chats_repository.get_listeners_by_chat_oid(chat_oid=query.chat_oid)

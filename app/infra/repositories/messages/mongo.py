@@ -4,10 +4,10 @@ from typing import Iterable
 
 from motor.core import AgnosticClient
 
-from domain.entities.messages import Chat, Message
+from domain.entities.messages import Chat, ChatListener, Message
 from infra.repositories.filters.messages import GetAllChatsFilters, GetMessagesFilter
 from infra.repositories.messages.base import BaseChatsRepository, BaseMessagesRepository
-from infra.repositories.messages.converters import convert_chat_document_to_entity, convert_chat_entity_to_document, convert_message_document_to_entity, convert_message_entity_to_document
+from infra.repositories.messages.converters import convert_chat_document_to_entity, convert_chat_entity_to_document, convert_chat_listener_document_to_entity, convert_message_document_to_entity, convert_message_entity_to_document
 
 
 @dataclass
@@ -55,6 +55,10 @@ class MongoDBChatsRepository(BaseChatsRepository, BaseMongoDBRepository):
     async def add_telegram_listener(self, chat_oid: str, telegram_chat_id: str):
         await self._collection.update_one({'oid': chat_oid}, {'$push': {'listeners': telegram_chat_id}})
     
+    async def get_listeners_by_chat_oid(self, chat_oid: str) -> Iterable[ChatListener]:
+        chat = await self.get_chat_by_oid(oid=chat_oid)
+
+        return [convert_chat_listener_document_to_entity(listener_id=listener.oid) for listener in chat.listeners]
     
 
 @dataclass

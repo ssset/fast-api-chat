@@ -22,6 +22,7 @@ orjson = "^3.11.1"
 websockets = "^15.0.1"
 aiojobs = "^1.4.0"
 ruff = "^0.12.7"
+debugpy = "^1.8.16"
 
 
 [tool.poetry.group.dev.dependencies]

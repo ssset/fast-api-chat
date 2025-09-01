@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Iterable
 
 from application.api.messages.filters import GetAllChatsFilters
-from domain.entities.messages import Chat, Message
+from domain.entities.messages import Chat, ChatListener, Message
 from infra.repositories.filters.messages import GetMessagesFilter
 
 
@@ -31,6 +31,10 @@ class BaseChatsRepository(ABC):
 
     @abstractmethod
     async def add_telegram_listener(self, chat_oid: str, telegram_chat_id: str):
+        ...
+    
+    @abstractmethod
+    async def get_listeners_by_chat_oid(self, chat_oid: str) -> Iterable[ChatListener]:
         ...
 
 @dataclass

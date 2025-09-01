@@ -31,10 +31,12 @@ from logic.events.messages import (
 from logic.mediator.base import Mediator
 from logic.mediator.event import EventMediator
 from logic.queries.messages import (
+    GetAllChatsListenersQueryHandler,
     GetAllChatsQuery,
     GetAllChatsQueryHandler,
     GetChatDetailQuery,
     GetChatDetailQueryHandler,
+    GetChatsListenersQuery,
     GetMessagesQuery,
     GetMessagesQueryHandler
     )
@@ -84,6 +86,7 @@ def _init_container() -> Container:
     # Query handlers
     container.register(GetChatDetailQueryHandler)
     container.register(GetMessagesQueryHandler)
+    container.register(GetAllChatsListenersQueryHandler)
     container.register(GetAllChatsQueryHandler)
 
     def create_message_broker() -> BaseMessageBroker:
@@ -209,6 +212,11 @@ def _init_container() -> Container:
         mediator.register_query(
             GetAllChatsQuery,
             container.resolve(GetAllChatsQueryHandler)
+        )
+
+        mediator.register_query(
+            GetChatsListenersQuery,
+            container.resolve(GetAllChatsListenersQueryHandler)
         )
 
         return mediator 
